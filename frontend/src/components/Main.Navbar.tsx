@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components"
 import {Link} from "react-router-dom";
-import Icon from '../assets/icon_512.png';
 
 import Logo from "./Logo";
 const MainNavbar: React.FC =()=>{

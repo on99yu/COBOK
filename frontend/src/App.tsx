@@ -1,6 +1,6 @@
 import React from 'react';
 import MainNavbar from './components/Main.Navbar'
-import {Router, Routes, Route} from 'react-router-dom';
+import {Routes, Route} from 'react-router-dom';
 
 import GlobalStyle  from './theme';
 import { Main } from './pages/Main.page';
