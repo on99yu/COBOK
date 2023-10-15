@@ -11,15 +11,6 @@ const MainNavbar: React.FC =()=>{
                 <NavbarLink to="/">
                     Home
                 </NavbarLink>
-                <NavbarLink to="/AutoTrading">
-                    AutoTrading
-                </NavbarLink>
-                <NavbarLink to="/">
-                    Profile
-                </NavbarLink>
-                <NavbarLink to="/">
-                    Login
-                </NavbarLink>
             </NavbarLinkContainer>
         </NavbarContainer>
     )
