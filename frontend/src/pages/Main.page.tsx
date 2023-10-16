@@ -1,18 +1,24 @@
-import React from 'react'
+import React, {useState} from 'react'
 import styled from "styled-components"
 
-import { CoinInfo } from '../components/CoinInfo.component';
-import { SelectTickerBox } from '../components/SelectTickerBox.component';
-export function Main(){
+import CoinInfo from '../components/CoinInfo.component';
+import SelectTickerBox from '../components/SelectTickerBox.component';
+
+const Main: React.FC=()=>{
+
+    const [ticker, setTicker] = useState<string>('');
+    const TickerChangeHandler = (ticker: string)=>{
+        setTicker(ticker)
+    }
     return (
     <MainContainer>
         <CoinInfoContainer>
             <CoinPriceContainer>
-                <CoinInfo/>
+                <CoinInfo ticker={ticker}/>
             </CoinPriceContainer>
         </CoinInfoContainer>
         <SelectTickerContainer>
-            <SelectTickerBox/>
+            <SelectTickerBox ticker={ticker} TickerChangeHandler={TickerChangeHandler}/>
         </SelectTickerContainer>
     </MainContainer>
     );
@@ -38,10 +44,13 @@ const CoinInfoContainer = styled.div`
     border-radius: 16px;
 `
 const CoinPriceContainer = styled.div`
+
     width: 40%;
     height:100%;
 `
 const SelectTickerContainer = styled.div`
+
+    min-width: 200px;
     width:20%;
     height: auto;
     margin-left: 100px;
@@ -49,3 +58,4 @@ const SelectTickerContainer = styled.div`
     border: 2px solid ${props=>props.theme.Yellow};
     /* border-radius: 16px; */
 `
+export default Main;
