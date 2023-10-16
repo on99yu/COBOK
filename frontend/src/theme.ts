@@ -13,6 +13,7 @@ export const theme : DefaultTheme ={
     Main4: '#7AA7E5',
     Main3: '#90B6E9',
 
+    Yellow: "#DC9E4B",
     Text: "#000000",
     Accent: "#F02D2D"
 }

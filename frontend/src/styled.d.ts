@@ -11,6 +11,7 @@ declare module "styled-components"{
         Main4: string,
         Main3: string,
         
+        Yellow: string,
         Text: string,
         Accent:string, 
     }
