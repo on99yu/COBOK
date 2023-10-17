@@ -1,6 +1,7 @@
 import React, {useEffect, useState } from 'react'
 import styled from 'styled-components'
 import axios from 'axios';
+
 interface CoinData{
     id: string;
     symbol: string;
@@ -8,7 +9,7 @@ interface CoinData{
     market_data:{
         current_price:{
             krw: number;
-        };
+        }
         price_change_percentage_24h: number;
         high_24h:{
             krw: number;
@@ -29,15 +30,28 @@ interface TickerProps {
     ticker: string;
 }
 
-const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
+export const addComma = (price: number)=>{
+
+    if (Number.isInteger(price)){
+        const returnNum = price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        return returnNum;
+    }else{
+        const returnNum = price?.toFixed(1).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+        return returnNum;
+    }
+
+}
+
+
+const CoinInfo: React.FC<TickerProps> = ({ticker})=>{   
 
     const [coinData, setCoinData] = useState<CoinData>({
         id: '',
         symbol: '',
         name: '',
         market_data:{
-            current_price:{
-                krw: 0,
+            current_price: {
+                krw:0,
             },
             price_change_percentage_24h: 0,
             high_24h:{
@@ -66,9 +80,8 @@ const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
                     symbol: res.data.symbol,
                     name: res.data.name,
                     market_data:{
-                        current_price:{
-                            krw: res?.data.market_data.current_price.krw
-
+                        current_price:{ 
+                            krw: res?.data.market_data.current_price.krw,
                         },
                         price_change_percentage_24h: res.data.market_data.price_change_percentage_24h,
                         high_24h:{
@@ -91,10 +104,11 @@ const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
             }
         }
         fetchCoinData(ticker);
-        console.log(JSON.stringify(coinData,null,2))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     },[ticker]);
-
+    const {market_data } = coinData;
+    const {price_change_percentage_24h: pricechange} = market_data;
+    const isPositiveChange= pricechange >=0;
     return (
         <CoinInfoContainer>
             <LeftContainer>
@@ -103,21 +117,34 @@ const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
                     <Ticker>{coinData?.symbol.toUpperCase()}/{'KRW'}</Ticker>
                 </TickerContainer>
                 <PriceContainer>
-                    <Div>
-                        <CurrentPrice>{coinData?.market_data.current_price.krw}</CurrentPrice>
-                        <Currency>{'KRW'}</Currency>
-                    </Div>
-                    <Div>
-                        <DoD>{coinData?.market_data.price_change_percentage_24h}</DoD>
-                        <DoDValue>{ (coinData?.market_data.current_price.krw / 100) * coinData.market_data.price_change_percentage_24h}</DoDValue>
-                    </Div>
+                    <PriceDiv>
+                        <CurrentPrice isPositive={isPositiveChange}>{addComma(coinData?.market_data.current_price.krw)}</CurrentPrice>
+                        <Currency isPositive={isPositiveChange}>{'KRW'}</Currency>
+                    </PriceDiv>
+                    <PriceDiv>
+                        <DoD isPositive={isPositiveChange}>{isPositiveChange ? '+' : ''}{addComma(coinData?.market_data.price_change_percentage_24h)}{'%'}</DoD>
+                        <DoDValue isPositive={isPositiveChange}>{isPositiveChange ? <RedTriangle/> : <BlueTriangle/>} { addComma((coinData?.market_data.current_price.krw / 100) * coinData.market_data.price_change_percentage_24h)}</DoDValue>
+                    </PriceDiv>
                 </PriceContainer>
             </LeftContainer>
             <CenterContainer>
-                <High>{coinData?.market_data.high_24h.krw}</High>
-                <Low>{coinData?.market_data.low_24h.krw}</Low>
-                <TotalVolume>{coinData?.market_data.total_volume.krw}</TotalVolume>
-                <MarketCap>{coinData?.market_data.market_cap.krw}</MarketCap>
+                <DetailDiv>
+                    <Detail>고가</Detail>
+                    <High>{addComma(coinData?.market_data.high_24h.krw)}</High>
+                </DetailDiv>
+                <DetailDiv>
+                    <Detail>저가</Detail>
+                    <Low>{addComma(coinData?.market_data.low_24h.krw)}</Low>
+                </DetailDiv>
+                <DetailDiv>
+                    <Detail>거래량</Detail>
+                    <TotalVolume>{addComma(coinData?.market_data.total_volume.krw)}</TotalVolume>
+
+                </DetailDiv>
+                <DetailDiv>
+                    <Detail>거래대금</Detail>
+                    <MarketCap>{addComma(coinData?.market_data.market_cap.krw)}</MarketCap>
+                </DetailDiv>
             </CenterContainer>
         </CoinInfoContainer>
     )
@@ -131,19 +158,24 @@ const CoinInfoContainer = styled.div`
     flex-direction: row;
 `
 const LeftContainer = styled.div`
+
     width:100%;
     height:100%;
     align-items: center;
     flex-direction: column;
-    padding:30px;
 
 `
 const CenterContainer = styled.div`
-    width:auto;
-    height:100%;
+   
+    width:50%;
+    height:auto;
     display: flex;
     flex-direction: column;
-    
+    align-items: start;
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 30px;
 `
 
 const TickerContainer = styled.div`
@@ -162,8 +194,9 @@ const PriceContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: baseline;
+    justify-content: space-between;
 `
-const Div = styled.div`
+const  PriceDiv = styled.div`
 
     width:100%;
     height:auto;
@@ -174,6 +207,12 @@ const Div = styled.div`
 
     padding-bottom: 20px;
 `
+const DetailDiv = styled.div`
+    width:150%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+`
 const Coin = styled.p`
     color:black;
     font-size: xx-large;
@@ -183,32 +222,61 @@ const Ticker = styled.p`
     color:gray;
     padding-left: 20px;
 `
-const CurrentPrice = styled.p`
-    color: red;
+const CurrentPrice = styled.p<{isPositive: boolean}>`
+    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
     font-size: xx-large;
 `
-const Currency = styled.p`
-    color: red;
+const Currency = styled.p<{isPositive: boolean}>`
+    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
     padding-left: 20px;
 `
-const DoD = styled.p`
-    color: red;
-    margin-left: 5px;
+const DoD = styled.p<{isPositive: boolean}>`
+    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
 `
-const DoDValue = styled.p`
-    color: red;
+const DoDValue = styled.p<{isPositive: boolean}>`
+    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
     padding-left: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 `
 const High = styled.p`
-    color:red;
+    color:${c => c.theme.Accent};
+    font-weight: bold;
 `
 const Low = styled.p`
-    
+    color: ${c => c.theme.Main8};
+    font-weight: bold;
 `
 const TotalVolume = styled.p`
-    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 `
 const MarketCap = styled.p`
+    display: flex;
+    flex-direction: row;
+`
+const Detail = styled.p`
     
+`
+const RedTriangle = styled.div`
+
+    width:0;
+    height: 0;
+    margin-right: 5px;
+    border-bottom:10px solid ${c=>c.theme.Accent};
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+`
+const BlueTriangle = styled.div`
+
+    width:0;
+    height: 0;
+    margin-right: 5px;
+    border-top:10px solid ${c=>c.theme.Main8};
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
 `
 export default CoinInfo
