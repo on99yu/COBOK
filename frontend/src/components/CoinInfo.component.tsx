@@ -44,7 +44,7 @@ export const addComma = (price: number)=>{
 
 
 const CoinInfo: React.FC<TickerProps> = ({ticker})=>{   
-
+    const [isPositive, setIsPositive] = useState<boolean>(true);
     const [coinData, setCoinData] = useState<CoinData>({
         id: '',
         symbol: '',
@@ -72,7 +72,6 @@ const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
         console.log("CoinData fetch - useEffect")
         const fetchCoinData = async (ticker:string)=>{
             try{
-                console.log("ticekr 확인",ticker)
                 const res = await axios.get<CoinData>(`https://api.coingecko.com/api/v3/coins/${ticker}`);
                 setCoinData(prevState => ({
                     ...prevState,
@@ -105,10 +104,8 @@ const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
         }
         fetchCoinData(ticker);
         // eslint-disable-next-line react-hooks/exhaustive-deps
+        setIsPositive(coinData.market_data.price_change_percentage_24h >= 0);
     },[ticker]);
-    const {market_data } = coinData;
-    const {price_change_percentage_24h: pricechange} = market_data;
-    const isPositiveChange= pricechange >=0;
     return (
         <CoinInfoContainer>
             <LeftContainer>
@@ -118,12 +115,12 @@ const CoinInfo: React.FC<TickerProps> = ({ticker})=>{
                 </TickerContainer>
                 <PriceContainer>
                     <PriceDiv>
-                        <CurrentPrice isPositive={isPositiveChange}>{addComma(coinData?.market_data.current_price.krw)}</CurrentPrice>
-                        <Currency isPositive={isPositiveChange}>{'KRW'}</Currency>
+                        <CurrentPrice $ispositive={isPositive}>{addComma(coinData?.market_data.current_price.krw)}</CurrentPrice>
+                        <Currency $ispositive={isPositive}>{'KRW'}</Currency>
                     </PriceDiv>
                     <PriceDiv>
-                        <DoD isPositive={isPositiveChange}>{isPositiveChange ? '+' : ''}{addComma(coinData?.market_data.price_change_percentage_24h)}{'%'}</DoD>
-                        <DoDValue isPositive={isPositiveChange}>{isPositiveChange ? <RedTriangle/> : <BlueTriangle/>} { addComma((coinData?.market_data.current_price.krw / 100) * coinData.market_data.price_change_percentage_24h)}</DoDValue>
+                        <DoD $ispositive={isPositive}>{isPositive ? '+' : ''}{addComma(coinData?.market_data.price_change_percentage_24h)}{'%'}</DoD>
+                        <DoDValue $ispositive={isPositive}>{isPositive ? <RedTriangle/> : <BlueTriangle/>} { addComma((coinData?.market_data.current_price.krw / 100) * coinData.market_data.price_change_percentage_24h)}</DoDValue>
                     </PriceDiv>
                 </PriceContainer>
             </LeftContainer>
@@ -222,19 +219,19 @@ const Ticker = styled.p`
     color:gray;
     padding-left: 20px;
 `
-const CurrentPrice = styled.p<{isPositive: boolean}>`
-    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
+const CurrentPrice = styled.p<{$ispositive: boolean}>`
+    color: ${(props)=> (props.$ispositive ? props.theme.Accent : props.theme.Main8)};
     font-size: xx-large;
 `
-const Currency = styled.p<{isPositive: boolean}>`
-    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
+const Currency = styled.p<{$ispositive: boolean}>`
+    color: ${(props)=> (props.$ispositive ? props.theme.Accent : props.theme.Main8)};
     padding-left: 20px;
 `
-const DoD = styled.p<{isPositive: boolean}>`
-    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
+const DoD = styled.p<{$ispositive: boolean}>`
+    color: ${(props)=> (props.$ispositive ? props.theme.Accent : props.theme.Main8)};
 `
-const DoDValue = styled.p<{isPositive: boolean}>`
-    color: ${(props)=> (props.isPositive ? props.theme.Accent : props.theme.Main8)};
+const DoDValue = styled.div<{$ispositive: boolean}>`
+    color: ${(props)=> (props.$ispositive ? props.theme.Accent : props.theme.Main8)};
     padding-left: 20px;
     display: flex;
     flex-direction: row;
